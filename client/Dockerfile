@@ -2,13 +2,13 @@
 FROM node:16
 
 # アプリケーションディレクトリを作成
-WORKDIR /usr/src/resource-server
+WORKDIR /usr/src/client
 
 # アプリケーションの依存関係をインストール
-COPY package.json ./
+COPY package*.json ./
 
 # npmを使用してパッケージをインストール
-RUN npm install
+# RUN npm install
 
 # アプリケーションのソースをコピー
 COPY . .
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # アプリケーションを実行
-CMD ["node", "server.js"]
+CMD "sh" "-c" "npm install && npm start"

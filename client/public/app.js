@@ -2,9 +2,17 @@ $(document).ready(function() {
     $('#login').click(function() {
         console.log('-- 処理開始 --');
 
+        authenticationInfo = {
+            grant_type: "authorization_code",
+            client_id: "buus5c0vh1t9ob4vl8soqveau",
+            redirect_uri: "http://localhost:3000",
+            code: "AUTHORIZATION_CODE"
+        }
+
         // 認可サーバに認証コードをリクエスト
+        // https://docs.aws.amazon.com/ja_jp/cognito/latest/developerguide/token-endpoint.html
         $.ajax({
-            url: 'http://localhost:5000/authorize',
+            url: 'https://sample-endpoint.auth.ap-northeast-1.amazoncognito.com/oauth2/token',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ username: 'user1', password: 'password1' }),
@@ -31,4 +39,8 @@ $(document).ready(function() {
             }
         });
     });
+
+
+
+    
 });

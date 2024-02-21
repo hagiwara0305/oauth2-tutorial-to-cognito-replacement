@@ -8,7 +8,7 @@ WORKDIR /usr/src/resource-server
 COPY package.json ./
 
 # npmを使用してパッケージをインストール
-RUN npm install
+# RUN npm install
 
 # アプリケーションのソースをコピー
 COPY . .
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5001
 
 # アプリケーションを実行
-CMD ["node", "server.js"]
+CMD "sh" "-c" "npm install && npm start"

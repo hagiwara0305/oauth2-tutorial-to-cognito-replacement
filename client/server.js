@@ -49,8 +49,8 @@ app.get('/get-token', async (req, res) => {
     };
     console.log(parameter);
 
-    // アクセストークン
-    let accessToken = null;
+    // エンドポイントからの返却値
+    let cognitoEndpointResponseData = null;
     try {
         await axios.post(tokenUrl, new URLSearchParams(parameter), {
             headers: {
@@ -60,7 +60,7 @@ app.get('/get-token', async (req, res) => {
             console.log('Access Token:', response.data.access_token);
             console.log('ID Token:', response.data.id_token);
 
-            accessToken = response.data.access_token;
+            cognitoEndpointResponseData = response.data;
         }).catch(function (error) {
             console.log(error.config); // リクエストの設定情報をログに記録
         });
@@ -76,7 +76,7 @@ app.get('/get-token', async (req, res) => {
         url: 'http://resource-server:5001/resource',
         method: 'GET',
         json: true,
-        headers: { authorization: accessToken }
+        headers: cognitoEndpointResponseData
     });
 
     console.log(resourceBody);

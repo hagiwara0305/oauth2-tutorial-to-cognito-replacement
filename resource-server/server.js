@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const app = express();
 const axios = require('axios');
+const { CognitoJwtVerifier } = require('aws-jwt-verify');
 
 // CORS対策(今回はフルアクセス許可として設定)
 const allowCrossDomain = function (req, res, next) {
@@ -21,9 +22,33 @@ const allowCrossDomain = function (req, res, next) {
 app.use(bodyParser.json());
 app.use(allowCrossDomain);
 
+const cognitoDomain = 'https://sample-endpoint.auth.ap-northeast-1.amazoncognito.com';
+const region = 'ap-northeast-1';
+const userPoolId = 'ap-northeast-1_KqG2wzGuL';
+const clientId = 'buus5c0vh1t9ob4vl8soqveau';
+
 app.get('/resource', async (req, res) => {
-  console.log('-- リソースサーバ処理 開始 --')
-  const authHeader = req.headers.authorization;
+  console.log('-- リソースサーバ処理 開始 --');
+
+  // JWTトークンの検証
+  console.log('-- JWTトークンの検証 --');
+  try {
+    const verifier = CognitoJwtVerifier.create({
+      userPoolId,
+      tokenUse: 'access',
+      clientId: clientId,
+      region,
+    });
+
+    const payload = await verifier.verify(req.headers.access_token);
+    console.log('JWT payload:', payload);
+  } catch (err) {
+    console.log('Error jwt token:', err);
+    return res.status(401).send('無効なトークンです');
+  }
+
+  console.log('-- アクセストークンの検証 --');
+  const authHeader = req.headers.access_token;
 
   if (!authHeader) {
     return res.status(401).send('認証が必要です');
@@ -32,7 +57,7 @@ app.get('/resource', async (req, res) => {
 
   let userInfo = null;
   try {
-    const userInfoEndpoint = 'https://sample-endpoint.auth.ap-northeast-1.amazoncognito.com/oauth2/userInfo';
+    const userInfoEndpoint = `${cognitoDomain}/oauth2/userInfo`;
 
     const response = await axios.get(userInfoEndpoint, {
       headers: {
@@ -44,7 +69,8 @@ app.get('/resource', async (req, res) => {
     userInfo = response.data;
     // 必要に応じてユーザー情報を使用
   } catch (error) {
-    console.error('Error accessing user info:', error);
+    console.log('Error get user info:', error);
+    return res.status(401).send('ユーザ情報の取得に失敗しました');
   }
 
   console.log('-- リソースサーバ処理 完了 --');

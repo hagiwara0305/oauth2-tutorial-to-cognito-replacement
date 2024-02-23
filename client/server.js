@@ -7,10 +7,12 @@ const crypto = require('crypto');
 const axios = require('axios');
 const session = require('express-session');
 
-const clientId = 'buus5c0vh1t9ob4vl8soqveau';
-const clientSecret = 'k4vc5bk855j6qd9dd8firfcap842i6ibgf8pp0rq7iafo1o3kbs';
-const redirectUri = 'http://localhost:3000/get-token';
-const scope = 'openid profile email';
+// Cognito関連の設定
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const COGNITO_DOMAIN = process.env.COGNITO_DOMAIN;
+const REDIRECT_URI = 'http://localhost:3000/get-token';
+const SCOPE = 'openid profile email';
 
 // 静的ファイルのサービング設定
 app.use(express.static('public'));
@@ -37,13 +39,13 @@ app.get('/get-token', async (req, res) => {
     console.log(req.query);
     console.log(req.session.codeVerifier);
 
-    const tokenUrl = `https://sample-endpoint.auth.ap-northeast-1.amazoncognito.com/oauth2/token`;
+    const tokenUrl = `${COGNITO_DOMAIN}/oauth2/token`;
 
     let parameter = {
         grant_type: 'authorization_code',
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        redirect_uri: REDIRECT_URI,
         code: req.query.code,
         code_verifier: req.session.codeVerifier,
     };
@@ -109,7 +111,10 @@ app.get('/login', (req, res) => {
         req.session.codeVerifier = codeVerifier;
         console.log(req.session.codeVerifier);
 
-        const authUrl = `https://sample-endpoint.auth.ap-northeast-1.amazoncognito.com/login?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
+        const authUrl = `${COGNITO_DOMAIN}/login?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&SCOPE=${SCOPE}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
+
+        console.log('リダイレクトURL');
+        console.log(authUrl);
 
         // リソースオーナーを認可サーバのログインページにリダイレクト
         res.redirect(authUrl);

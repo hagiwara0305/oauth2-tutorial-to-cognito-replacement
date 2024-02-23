@@ -22,10 +22,11 @@ const allowCrossDomain = function (req, res, next) {
 app.use(bodyParser.json());
 app.use(allowCrossDomain);
 
-const cognitoDomain = 'https://sample-endpoint.auth.ap-northeast-1.amazoncognito.com';
-const region = 'ap-northeast-1';
-const userPoolId = 'ap-northeast-1_KqG2wzGuL';
-const clientId = 'buus5c0vh1t9ob4vl8soqveau';
+// Cognito関連の設定
+const COGNITO_DOMAIN = process.env.COGNITO_DOMAIN;
+const REGION = process.env.REGION;
+const USER_POOL_ID = process.env.USER_POOL_ID;
+const CLIENT_ID = process.env.CLIENT_ID;
 
 app.get('/resource', async (req, res) => {
   console.log('-- リソースサーバ処理 開始 --');
@@ -34,10 +35,10 @@ app.get('/resource', async (req, res) => {
   console.log('-- JWTトークンの検証 --');
   try {
     const verifier = CognitoJwtVerifier.create({
-      userPoolId,
+      userPoolId: USER_POOL_ID,
       tokenUse: 'access',
-      clientId: clientId,
-      region,
+      clientId: CLIENT_ID,
+      region: REGION,
     });
 
     const payload = await verifier.verify(req.headers.access_token);
@@ -57,7 +58,7 @@ app.get('/resource', async (req, res) => {
 
   let userInfo = null;
   try {
-    const userInfoEndpoint = `${cognitoDomain}/oauth2/userInfo`;
+    const userInfoEndpoint = `${COGNITO_DOMAIN}/oauth2/userInfo`;
 
     const response = await axios.get(userInfoEndpoint, {
       headers: {

@@ -10,9 +10,14 @@ services:
       - ./resource-server:/usr/src/resource-server
     ports:
       - "5001:5001"
+    env_file:
+      - ./cognito.env
   client:
     build: ./client
     volumes: 
       - ./client:/usr/src/client
     ports:
       - "3000:3000"
+    env_file:
+      - ./cognito.env
+      - ./client/client.env

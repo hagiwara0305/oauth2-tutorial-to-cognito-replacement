@@ -11,7 +11,7 @@ COPY package.json ./
 # RUN npm install
 
 # アプリケーションのソースをコピー
-COPY . .
+# COPY . .
 
 # アプリケーションがリッスンするポートを指定
 EXPOSE 5001
